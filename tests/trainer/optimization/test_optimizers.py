@@ -718,5 +718,3 @@ def test_lr_scheduler_step_hook(tmpdir):
 
     for param_group in trainer.optimizers[1].param_groups:
         assert param_group["lr"] == lr / math.factorial(max_epochs)
-
-    breakpoint()
