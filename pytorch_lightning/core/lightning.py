@@ -1626,14 +1626,14 @@ class LightningModule(
                 using_native_amp,
                 using_lbfgs,
             ):
+                # update params
+                optimizer.step(closure=optimizer_closure)
+
                 # warm up lr
                 if self.trainer.global_step < 500:
                     lr_scale = min(1.0, float(self.trainer.global_step + 1) / 500.0)
                     for pg in optimizer.param_groups:
                         pg["lr"] = lr_scale * self.learning_rate
-
-                # update params
-                optimizer.step(closure=optimizer_closure)
 
         """
         optimizer.step(closure=optimizer_closure)
