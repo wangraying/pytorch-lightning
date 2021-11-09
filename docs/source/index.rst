@@ -67,7 +67,6 @@ PyTorch Lightning
    common/optimizers
    advanced/profiler
    advanced/plugins_registry
-   advanced/sequences
    common/single_gpu
    advanced/training_tricks
    advanced/pruning_quantization
