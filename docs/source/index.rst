@@ -43,6 +43,15 @@ PyTorch Lightning
    common/trainer
 
 .. toctree::
+   :maxdepth: 2
+   :name: Accelerators
+   :caption: Accelerators
+
+   accelerators/gpu
+   accelerators/tpu
+   accelerators/ipu
+
+.. toctree::
    :maxdepth: 1
    :name: Common Use Cases
    :caption: Common Use Cases
@@ -54,11 +63,9 @@ PyTorch Lightning
    common/early_stopping
    common/hyperparameters
    common/production_inference
-   advanced/ipu
    common/lightning_cli
    advanced/lr_finder
    common/loggers
-   advanced/multi_gpu
    advanced/advanced_gpu
    advanced/mixed_precision
    common/weights_loading
@@ -68,11 +75,9 @@ PyTorch Lightning
    advanced/profiler
    advanced/plugins_registry
    advanced/sequences
-   common/single_gpu
    advanced/training_tricks
    advanced/pruning_quantization
    advanced/transfer_learning
-   advanced/tpu
    common/test_set
 
 .. toctree::
