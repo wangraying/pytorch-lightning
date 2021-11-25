@@ -134,7 +134,7 @@ class DeepSpeedPlugin(DDPPlugin):
     ) -> None:
         """Provides capabilities to run training using the DeepSpeed library, with training optimizations for large
         billion parameter models. `For more information: https://pytorch-
-        lightning.readthedocs.io/en/latest/advanced/multi_gpu.html#deepspeed`.
+        lightning.readthedocs.io/en/latest/advanced/advanced_gpu.html#deepspeed`.
 
         .. warning:: ``DeepSpeedPlugin`` is in beta and subject to change.
 
@@ -593,7 +593,7 @@ class DeepSpeedPlugin(DDPPlugin):
         if self.config is None:
             raise MisconfigurationException(
                 "To use DeepSpeed you must pass in a DeepSpeed config dict, or a path to a JSON config."
-                " See: https://pytorch-lightning.readthedocs.io/en/latest/advanced/multi_gpu.html#deepspeed"
+                " See: https://pytorch-lightning.readthedocs.io/en/latest/advanced/advanced_gpu.html#deepspeed"
             )
         self._format_batch_size_and_grad_accum_config()
         self._format_precision_config()
