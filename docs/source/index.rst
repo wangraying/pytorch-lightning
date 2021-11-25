@@ -43,7 +43,7 @@ PyTorch Lightning
    common/trainer
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :name: Accelerators
    :caption: Accelerators
 
