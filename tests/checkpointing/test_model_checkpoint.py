@@ -865,8 +865,6 @@ def test_checkpointing_with_nan_as_first(tmpdir, mode):
     assert mode == "min" and callback.best_model_score == 5 or mode == "max" and callback.best_model_score == 8
 
 
-# FIXME: only BC with fault tolerance enabled
-@mock.patch.dict(os.environ, {"PL_FAULT_TOLERANT_TRAINING": "1"})
 def test_checkpoint_repeated_strategy(tmpdir):
     """This test validates checkpoint can be called several times without increasing internally its global step if
     nothing run."""
@@ -901,8 +899,6 @@ def test_checkpoint_repeated_strategy(tmpdir):
     assert set(os.listdir(tmpdir / "lightning_logs")) == {f"version_{i}" for i in range(4)}
 
 
-# FIXME: only BC with fault tolerance enabled
-@mock.patch.dict(os.environ, {"PL_FAULT_TOLERANT_TRAINING": "1"})
 def test_checkpoint_repeated_strategy_extended(tmpdir):
     """This test validates checkpoint can be called several times without increasing internally its global step if
     nothing run."""
@@ -983,15 +979,15 @@ def test_checkpoint_repeated_strategy_extended(tmpdir):
 
         trainer.fit(model, ckpt_path=chk)
         assert trainer.global_step == epochs * limit_train_batches
-        assert trainer.current_epoch == epochs - 1
+        assert trainer.current_epoch == epochs
 
         trainer.validate(model)
         assert trainer.global_step == epochs * limit_train_batches
-        assert trainer.current_epoch == epochs - 1
+        assert trainer.current_epoch == epochs
 
         trainer.fit(model)
         assert trainer.global_step == epochs * limit_train_batches
-        assert trainer.current_epoch == epochs - 1
+        assert trainer.current_epoch == epochs
         assert_checkpoint_log_dir(idx)
 
 

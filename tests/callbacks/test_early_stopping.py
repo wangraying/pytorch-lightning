@@ -468,7 +468,7 @@ def test_check_on_train_epoch_end_smart_handling(tmpdir, case):
     if case == "val_check_interval":
         assert trainer.global_step == len(side_effect) * int(trainer.limit_train_batches * trainer.val_check_interval)
     else:
-        assert trainer.current_epoch == len(side_effect) * trainer.check_val_every_n_epoch - 1
+        assert trainer.current_epoch == len(side_effect) * trainer.check_val_every_n_epoch
 
 
 def test_early_stopping_squeezes():

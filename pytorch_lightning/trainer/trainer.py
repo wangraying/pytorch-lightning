@@ -1307,11 +1307,11 @@ class Trainer(
         using_val_step = self._data_connector._val_dataloader_source.is_defined() and is_overridden(
             "validation_step", ref_model
         )
-        # do not sanity check if restarting because it would mess up the loaded state
         should_sanity_check = (
             using_val_step
             and self.num_sanity_val_steps > 0
             and self.limit_val_batches > 0
+            # do not sanity check if restarting because it would mess up the loaded state
             and not self._evaluation_loop.restarting
         )
 
