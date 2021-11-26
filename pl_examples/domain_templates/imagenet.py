@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-This example is largely adapted from https://github.com/pytorch/examples/blob/master/imagenet/main.py
+"""This example is largely adapted from https://github.com/pytorch/examples/blob/master/imagenet/main.py.
 
 Before you can run this example, you will need to download the ImageNet dataset manually from the
 `official website <http://image-net.org/download>`_ and place it into a folder `path/to/imagenet`.
@@ -28,7 +27,6 @@ or show all options you can change:
 .. code-block: bash
 
     python imagenet.py --help
-
 """
 import os
 from argparse import ArgumentParser, Namespace
@@ -101,18 +99,21 @@ class ImageNetLightningModel(LightningModule):
         self.log("train_acc5", acc5, on_step=True, on_epoch=True, logger=True)
         return loss_train
 
-    def validation_step(self, batch, batch_idx):
+    def eval_step(self, batch, batch_idx, prefix: str):
         images, target = batch
         output = self(images)
         loss_val = F.cross_entropy(output, target)
         acc1, acc5 = self.__accuracy(output, target, topk=(1, 5))
-        self.log("val_loss", loss_val, on_step=True, on_epoch=True)
-        self.log("val_acc1", acc1, on_step=True, prog_bar=True, on_epoch=True)
-        self.log("val_acc5", acc5, on_step=True, on_epoch=True)
+        self.log(f"{prefix}_loss", loss_val, on_step=True, on_epoch=True)
+        self.log(f"{prefix}_acc1", acc1, on_step=True, prog_bar=True, on_epoch=True)
+        self.log(f"{prefix}_acc5", acc5, on_step=True, on_epoch=True)
+
+    def validation_step(self, batch, batch_idx):
+        return self.eval_step(batch, batch_idx, "val")
 
     @staticmethod
     def __accuracy(output, target, topk=(1,)):
-        """Computes the accuracy over the k top predictions for the specified values of k"""
+        """Computes the accuracy over the k top predictions for the specified values of k."""
         with torch.no_grad():
             maxk = max(topk)
             batch_size = target.size(0)
@@ -167,21 +168,8 @@ class ImageNetLightningModel(LightningModule):
     def test_dataloader(self):
         return self.val_dataloader()
 
-    def test_step(self, *args, **kwargs):
-        return self.validation_step(*args, **kwargs)
-
-    def test_epoch_end(self, *args, **kwargs):
-        outputs = self.validation_epoch_end(*args, **kwargs)
-
-        def substitute_val_keys(out):
-            return {k.replace("val", "test"): v for k, v in out.items()}
-
-        outputs = {
-            "test_loss": outputs["val_loss"],
-            "progress_bar": substitute_val_keys(outputs["progress_bar"]),
-            "log": substitute_val_keys(outputs["log"]),
-        }
-        return outputs
+    def test_step(self, batch, batch_idx):
+        return self.eval_step(batch, batch_idx, "test")
 
     @staticmethod
     def add_model_specific_args(parent_parser):  # pragma: no-cover

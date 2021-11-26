@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Warning-related utilities"""
+"""Warning-related utilities."""
 import warnings
 from functools import partial
 
@@ -27,8 +27,12 @@ def rank_zero_warn(*args, stacklevel: int = 4, **kwargs):
     _warn(*args, stacklevel=stacklevel, **kwargs)
 
 
+class PossibleUserWarning(UserWarning):
+    """Warnings that could be false positives."""
+
+
 class LightningDeprecationWarning(DeprecationWarning):
-    ...
+    """Deprecation warnings raised by PyTorch Lightning."""
 
 
 # enable our warnings

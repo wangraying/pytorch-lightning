@@ -15,13 +15,13 @@ from abc import ABC
 
 import torch
 
-from pytorch_lightning.utilities import DistributedType
+from pytorch_lightning.utilities import _StrategyType
 
 
 class TestEpochEndVariations(ABC):
     def test_epoch_end(self, outputs):
-        """
-        Called at the end of test epoch to aggregate outputs
+        """Called at the end of test epoch to aggregate outputs.
+
         :param outputs: list of individual outputs of each validation step
         :return:
         """
@@ -34,13 +34,13 @@ class TestEpochEndVariations(ABC):
             test_loss = self.get_output_metric(output, "test_loss")
 
             # reduce manually when using dp
-            if self.trainer._distrib_type == DistributedType.DP:
+            if self.trainer._distrib_type == _StrategyType.DP:
                 test_loss = torch.mean(test_loss)
             test_loss_mean += test_loss
 
             # reduce manually when using dp
             test_acc = self.get_output_metric(output, "test_acc")
-            if self.trainer._distrib_type == DistributedType.DP:
+            if self.trainer._distrib_type == _StrategyType.DP:
                 test_acc = torch.mean(test_acc)
 
             test_acc_mean += test_acc
@@ -53,8 +53,8 @@ class TestEpochEndVariations(ABC):
         return result
 
     def test_epoch_end__multiple_dataloaders(self, outputs):
-        """
-        Called at the end of test epoch to aggregate outputs
+        """Called at the end of test epoch to aggregate outputs.
+
         :param outputs: list of individual outputs of each validation step
         :return:
         """
@@ -69,13 +69,13 @@ class TestEpochEndVariations(ABC):
                 test_loss = output["test_loss"]
 
                 # reduce manually when using dp
-                if self.trainer._distrib_type == DistributedType.DP:
+                if self.trainer._distrib_type == _StrategyType.DP:
                     test_loss = torch.mean(test_loss)
                 test_loss_mean += test_loss
 
                 # reduce manually when using dp
                 test_acc = output["test_acc"]
-                if self.trainer._distrib_type == DistributedType.DP:
+                if self.trainer._distrib_type == _StrategyType.DP:
                     test_acc = torch.mean(test_acc)
 
                 test_acc_mean += test_acc
