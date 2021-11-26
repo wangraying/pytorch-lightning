@@ -22,6 +22,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.trainer.connectors.logger_connector.result import ResultCollection
 from pytorch_lightning.trainer.progress import BaseProgress
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
+from pytorch_lightning.utilities.imports import _fault_tolerant_training
 
 T = TypeVar("T")  # the output type of `run`
 
@@ -234,7 +235,7 @@ class Loop(ABC, Generic[T]):
                 destination[key] = v.state_dict()
             elif isinstance(v, Loop):
                 v.state_dict(destination, key + ".")
-            elif isinstance(v, ResultCollection):
+            elif _fault_tolerant_training() and isinstance(v, ResultCollection):
                 # sync / unsync metrics
                 v.sync()
                 destination[key] = v.state_dict()
@@ -257,12 +258,16 @@ class Loop(ABC, Generic[T]):
     def _load_from_state_dict(self, state_dict: Dict, prefix: str, metrics: Optional[Dict[str, Metric]] = None) -> None:
         for k, v in self.__dict__.items():
             key = prefix + k
+            if key not in state_dict:
+                # no state for this object, maybe we are loading an old checkpoint
+                continue
+
             if isinstance(v, BaseProgress):
                 v.load_state_dict(state_dict[key])
             elif (
                 isinstance(v, ResultCollection)
                 and self.trainer is not None
-                and getattr(self.trainer, "lightning_module", None) is not None
+                and self.trainer.lightning_module is not None
             ):
                 metric_attributes = {
                     name: module
@@ -278,7 +283,7 @@ class Loop(ABC, Generic[T]):
                 # On reload, we need to re-attach the `Metric`s back to the `ResultCollection`.
                 # The references are provided through the `metric_attributes` dictionary.
                 v.load_state_dict(
-                    state_dict[prefix + k], metrics=metric_attributes, sync_fn=self.trainer.training_type_plugin.reduce
+                    state_dict[key], metrics=metric_attributes, sync_fn=self.trainer.training_type_plugin.reduce
                 )
 
                 if not self.trainer.is_global_zero:
