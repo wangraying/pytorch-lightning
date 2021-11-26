@@ -251,7 +251,7 @@ def test_correct_step_and_epoch(tmpdir):
     trainer.fit(TestModel(), ckpt_path=ckpt)
     assert trainer.current_epoch == max_epochs
     # TODO(@carmocca): should not need `+1`
-    # assert trainer.global_step == max_epochs * train_batches + 1
+    assert trainer.global_step == max_epochs * train_batches + 1
 
 
 def test_fit_twice(tmpdir):
