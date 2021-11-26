@@ -490,7 +490,7 @@ def _run_trainer_model_hook_system_fit(kwargs, tmpdir, automatic_optimization):
     trainer.fit(model)
     saved_ckpt = {
         "callbacks": ANY,
-        "epoch": 1,
+        "epoch": 0,
         "global_step": train_batches,
         "lr_schedulers": ANY,
         "optimizer_states": ANY,
@@ -618,7 +618,7 @@ def test_trainer_model_hook_system_fit_no_val_and_resume(tmpdir):
     trainer.fit(model, ckpt_path=best_model_path)
     loaded_ckpt = {
         "callbacks": ANY,
-        "epoch": 1,  # TODO: wrong loaded epoch, should be 0
+        "epoch": 0,
         "global_step": 1,
         "lr_schedulers": ANY,
         "optimizer_states": ANY,
