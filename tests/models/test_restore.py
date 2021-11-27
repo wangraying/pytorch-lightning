@@ -224,7 +224,9 @@ def test_correct_step_and_epoch(tmpdir):
     model = BoringModel()
     first_max_epochs = 2
     train_batches = 2
-    trainer = Trainer(default_root_dir=tmpdir, max_epochs=first_max_epochs, limit_train_batches=train_batches)
+    trainer = Trainer(
+        default_root_dir=tmpdir, max_epochs=first_max_epochs, limit_train_batches=train_batches, limit_val_batches=0
+    )
     assert trainer.current_epoch == 0
     assert trainer.global_step == 0
 
@@ -232,23 +234,29 @@ def test_correct_step_and_epoch(tmpdir):
     assert trainer.current_epoch == first_max_epochs
     assert trainer.global_step == first_max_epochs * train_batches
 
-    ckpt = str(tmpdir / "model.ckpt")
-    trainer.save_checkpoint(ckpt)
-    # TODO(@carmocca): should not need `+1`
-    assert torch.load(ckpt)["global_step"] == first_max_epochs * train_batches + 1
+    ckpt_path = str(tmpdir / "model.ckpt")
+    trainer.save_checkpoint(ckpt_path)
 
-    max_epochs = 4
-    trainer = Trainer(default_root_dir=tmpdir, max_epochs=max_epochs, limit_train_batches=train_batches)
+    ckpt = torch.load(ckpt_path)
+    assert ckpt["epoch"] == first_max_epochs
+    # TODO(@carmocca): should not need `+1`
+    assert ckpt["global_step"] == first_max_epochs * train_batches + 1
+
+    max_epochs = first_max_epochs + 2
+    trainer = Trainer(
+        default_root_dir=tmpdir, max_epochs=max_epochs, limit_train_batches=train_batches, limit_val_batches=0
+    )
     # the ckpt state is not loaded at this point
     assert trainer.current_epoch == 0
     assert trainer.global_step == 0
 
     class TestModel(BoringModel):
         def on_pretrain_routine_end(self) -> None:
+            assert self.trainer.current_epoch == first_max_epochs
             # TODO(@carmocca): should not need `+1`
             assert self.trainer.global_step == first_max_epochs * train_batches + 1
 
-    trainer.fit(TestModel(), ckpt_path=ckpt)
+    trainer.fit(TestModel(), ckpt_path=ckpt_path)
     assert trainer.current_epoch == max_epochs
     # TODO(@carmocca): should not need `+1`
     assert trainer.global_step == max_epochs * train_batches + 1
