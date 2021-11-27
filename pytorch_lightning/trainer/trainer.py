@@ -321,7 +321,7 @@ class Trainer(
                 To enable infinite training, set ``max_epochs = -1``.
 
             min_epochs: Force training for at least these many epochs. Disabled by default (None).
-                If both min_epochs and min_steps are not specified, defaults to ``min_epochs = 1``.
+                If both min_epochs and min_steps are not specified, defaults to ``min_epochs = 0``.
 
             max_steps: Stop training after this number of steps. Disabled by default (-1). If ``max_steps = -1``
                 and ``max_epochs = None``, will default to ``max_epochs = 1000``. To enable infinite training, set
@@ -447,7 +447,7 @@ class Trainer(
         self.tuner = Tuner(self)
 
         fit_loop = FitLoop(
-            min_epochs=(1 if (min_epochs is None and min_steps is None and max_time is None) else min_epochs),
+            min_epochs=(0 if (min_epochs is None and min_steps is None and max_time is None) else min_epochs),
             max_epochs=(
                 max_epochs if max_epochs is not None else (1000 if (max_steps == -1 and max_time is None) else -1)
             ),

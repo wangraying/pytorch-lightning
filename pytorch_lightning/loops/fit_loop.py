@@ -36,7 +36,7 @@ class FitLoop(Loop):
 
     def __init__(
         self,
-        min_epochs: Optional[int] = 1,
+        min_epochs: Optional[int] = 0,
         max_epochs: int = 1000,
     ) -> None:
         super().__init__()
@@ -239,7 +239,9 @@ class FitLoop(Loop):
             self.global_step += 1
 
     def on_advance_end(self) -> None:
-        self.epoch_progress.increment_completed()
+        # TODO(@carmocca): remove this check after implementing `loop.stop()`
+        if not self.trainer.should_stop:
+            self.epoch_progress.increment_completed()
 
     def on_run_end(self) -> None:
         """Calls the ``on_train_end`` hook."""
