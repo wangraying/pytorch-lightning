@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import inspect
 import os
 from copy import deepcopy
 from dataclasses import dataclass
@@ -1008,3 +1009,20 @@ def test_workers_are_shutdown(tmpdir, should_fail, persistent_workers):
     assert val_dataloader.count_shutdown_workers == 2 if persistent_workers else (3 if should_fail else max_epochs + 1)
     assert train_dataloader._iterator is None
     assert val_dataloader._iterator is None
+
+
+def test_loops_save_arguments():
+    """Checks that all Loop classes arguments are optional and they get set in the ``__init__``.
+
+    This is required by ``Loop.replace``.
+    """
+    import pytorch_lightning.loops as loops
+
+    classes = inspect.getmembers(loops, inspect.isclass)
+    for _, cls in classes:
+        init_args = dict(inspect.signature(cls.__init__).parameters)
+        del init_args["self"]
+        if init_args:
+            loop = cls()
+        for name in init_args:
+            assert hasattr(loop, name)
