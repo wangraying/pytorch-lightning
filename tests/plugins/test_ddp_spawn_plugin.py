@@ -47,7 +47,7 @@ class BoringCallbackDDPSpawnModel(BoringModel):
         return super().get_from_queue(queue)
 
 
-@RunIf(skip_windows=True, skip_49370=True)
+@RunIf(skip_windows=True, skip_49370=True, skip_hanging_spawn=True)
 def test_ddp_cpu():
     """Tests if device is set correctly when training for DDPSpawnPlugin."""
     trainer = Trainer(num_processes=2, fast_dev_run=True)
