@@ -103,12 +103,12 @@ class Loop(ABC, Generic[T]):
         """Optionally replace one or multiple of this loop's sub-loops.
 
         This methods takes care of instantiating the class (if necessary) with all existing arguments, connecting all
-        sub-loops of the old loop to the new instance, setting the ``Trainer`` reference, and conneting the new loop to
-        the parent.
+        sub-loops of the old loop to the new instance, setting the ``Trainer`` reference, and ``connect``ing the new
+        loop to the parent.
 
         Args:
-            **loops: A ``Loop`` subclass or instance. The name used should match the loop attribute name you want to
-                replace.
+            **loops: A ``Loop`` subclass or instance. The name of the keyword argument passed should match the loop
+                attribute name you want to replace.
 
         Raises:
             MisconfigurationException: When passing a ``Loop`` class, if the ``__init__`` arguments do not match those
@@ -125,18 +125,28 @@ class Loop(ABC, Generic[T]):
                 current_parameters = inspect.signature(type_or_object.__init__).parameters
                 if old_parameters != current_parameters:
                     raise MisconfigurationException(
-                        f"`{self.__class__.__name__}.replace({type_or_object.__name__})` can only be used if the"
+                        f"`{self.__class__.__name__}.replace({name}={type_or_object.__name__})` can only be used if the"
                         f" `__init__` signatures match but `{old_loop.__class__.__name__}` does not."
                     )
                 # instantiate the loop
                 kwargs = {p: getattr(old_loop, p) for p in old_parameters if p != "self"}
                 loop = type_or_object(**kwargs)  # type: ignore[call-arg]
             else:
+                # the user passed a loop instance
                 loop = type_or_object
 
             # connect sub-loops
-            # in the case of passing an instance, this assumes its loops haven't been overridden
-            subloops = {n: l for n, l in old_loop.__dict__.items() if isinstance(l, Loop)}
+            if isinstance(type_or_object, type):
+                subloops = {n: l for n, l in old_loop.__dict__.items() if isinstance(l, Loop)}
+            else:
+                # the user passed a loop instance. filter any custom sub-loops already connected
+                subloops = {}
+                for n, l in loop.__dict__.items():
+                    old_subloop = getattr(old_loop, n)
+                    # only connect back the old sub-loop instances which are of the same class
+                    # otherwise it would override any sub-loops already changed by the user
+                    if isinstance(l, Loop) and type(l) is type(old_subloop):
+                        subloops[n] = old_subloop
             loop.connect(**subloops)
 
             # set the trainer reference
