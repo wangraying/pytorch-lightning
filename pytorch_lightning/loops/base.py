@@ -139,7 +139,6 @@ class Loop(ABC, Generic[T]):
             if isinstance(type_or_object, type):
                 subloops = {n: l for n, l in old_loop.__dict__.items() if isinstance(l, Loop)}
             else:
-                # the user passed a loop instance. filter any custom sub-loops already connected
                 subloops = {}
                 for n, l in loop.__dict__.items():
                     old_subloop = getattr(old_loop, n)
